@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { uploadToS3 } from "@/lib/s3";
 import { useMutation } from "@tanstack/react-query";
@@ -6,8 +7,11 @@ import React, { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+
 const FileUpload = () => {
-  const [uploading, setUploading] = useState(false);
+  const router = useRouter();
+  const [isUploading, setisUploading] = useState<boolean>(false);
 
   const { mutate, isPending } = useMutation({
     mutationFn: async ({
@@ -38,12 +42,12 @@ const FileUpload = () => {
       const file = acceptedFiles[0];
       if (file.size > 10 * 1024 * 1024) {
         //bigger than 10 mb
-        toast.error("File too large!");
-        // alert("Please upload a smaller file");
+        toast.error("Please upload a smaller file");
         return;
       }
+
       try {
-        setUploading(true);
+        setisUploading(true);
         const data = await uploadToS3(file);
         console.log(data);
         if (!data?.file_key || !data?.file_name) {
@@ -52,9 +56,10 @@ const FileUpload = () => {
           return;
         }
         mutate(data, {
-          onSuccess: (data) => {
-            toast.success(data);
-            console.log("Filedata", data);
+          onSuccess: ({chatId}) => {
+            // toast.success(data);
+            // console.log("Filedata", data);
+            router.push(`/chat/${chatId}`);
           },
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           onError: (err) => {
@@ -66,7 +71,7 @@ const FileUpload = () => {
       } catch (error) {
         console.log(error);
       } finally {
-        setUploading(false);
+        setisUploading(false);
       }
     },
   });
@@ -79,7 +84,7 @@ const FileUpload = () => {
         })}
       >
         <input {...getInputProps()} />
-        {uploading || isPending ? (
+        {isUploading || isPending ? (
           <>
             {/*loading state */}
             <Loader2 className="h-10 w-10 text-blue-500 animate-spin" />

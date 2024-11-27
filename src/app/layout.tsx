@@ -27,13 +27,14 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
+      {/* This providers here is written so that each component  in the app have access to the dtaa cached becose of tanstack react query since data has been fetched by openai therefore it'll say that I already have data and get the data from the cache itself instead of querying again!*/}
       <Providers>
         <html lang="en">
           <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
           >
             {children}
-        <Toaster />
+            <Toaster />
           </body>
         </html>
       </Providers>

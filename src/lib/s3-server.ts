@@ -6,6 +6,7 @@ export async function downloadFromS3(file_key: string) {
       accessKeyId: process.env.NEXT_PUBLIC_S3_ACCESS_KEY_ID,
       secretAccessKey: process.env.NEXT_PUBLIC_S3_SECRET_ACCESS_KEY,
     });
+
     const s3 = new AWS.S3({
       params: {
         Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME,
@@ -19,16 +20,17 @@ export async function downloadFromS3(file_key: string) {
     };
 
     const obj = await s3.getObject(params).promise();
+
     const filePath = `/tmp/pdf`;
     if (!fs.existsSync(filePath)) {
       fs.mkdirSync(filePath, { recursive: true });
     }
-    const file_name = `${filePath}/-${Date.now()}.pdf`;
 
+    const file_name = `${filePath}-${Date.now()}.pdf`;
     fs.writeFileSync(file_name, obj.Body as Buffer);
     return file_name;
   } catch (error) {
-    console.log(error);
+    console.log("There was an error", error);
     return null;
   }
 }
